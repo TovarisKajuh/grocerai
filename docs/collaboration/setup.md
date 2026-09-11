@@ -27,14 +27,15 @@ Both lines should show `https://github.com/TovarisKajuh/grocerai.git`.
 git config --global user.name "Your Name"
 git config --global user.email "you@example.com"
 git config --global pull.rebase true
+git config --global fetch.prune true
 ```
 
-Use the email address attached to your GitHub account so commits are linked to you. `pull.rebase true` is explained in [git-workflow.md](git-workflow.md).
+Use the email address attached to your GitHub account so commits are linked to you. `pull.rebase true` is explained in [git-workflow.md](git-workflow.md). `fetch.prune true` deletes the remote-tracking refs of branches that were merged and removed on GitHub, so `git branch -vv` does not fill up with branches marked `gone`.
 
 Confirm:
 
 ```sh
-git config --global --list | grep -E 'user\.|pull\.rebase'
+git config --global --list | grep -E 'user\.|pull\.rebase|fetch\.prune'
 ```
 
 ## GitHub CLI

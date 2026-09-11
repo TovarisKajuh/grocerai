@@ -11,7 +11,7 @@ That only works if the review is small enough to do properly. Around 400 changed
 Both agents must work from the same instructions, so the files that carry those instructions live in the repository:
 
 - `CLAUDE.md` at the repository root.
-- `.claude/settings.json` for shared permissions and hooks, once we have any.
+- `.claude/settings.json` for shared permissions and hooks. It currently holds one hook, described below.
 - `.claude/commands/` and `.claude/skills/` for any shared commands or skills.
 
 These files are personal and stay out of the repository:
@@ -21,6 +21,14 @@ These files are personal and stay out of the repository:
 Local-scope MCP servers are stored in your home directory by Claude Code, not in the repository, so there is nothing to ignore for them. If we ever add a project-scoped `.mcp.json`, it is shared configuration and gets committed like `settings.json`.
 
 The `.gitignore` at the root already covers `settings.local.json`.
+
+## The session-start fetch hook
+
+`.claude/settings.json` runs `git fetch --prune origin` when a Claude session starts in this repository, and prints a line when the checked-out branch is behind `origin/main`.
+
+It exists because `git status` never contacts GitHub: it compares your branch against the local `refs/remotes/origin/main`, which only changes when something fetches. An un-fetched clone therefore looks in sync whatever has landed on `main`, and a branch started from it is based on stale history.
+
+The hook only fetches. It never checks out, merges, rebases or pushes, so it cannot touch your working tree, and it exits successfully when the remote is unreachable so that an offline session still starts. Since a fetch updates the whole repository, one run also covers any worktrees attached to it.
 
 ## Divide work by module, not by ticket
 
