@@ -121,17 +121,25 @@ Or from the command line:
 gh repo edit TovarisKajuh/grocerai --enable-merge-commit=false --enable-rebase-merge=false --enable-squash-merge --delete-branch-on-merge
 ```
 
-## Escape hatch while prototyping
+## The escape hatch is closed
 
-While the project is a prototype and nothing is deployed, the PR workflow is more ceremony than it is worth. In that phase it is fine to leave the ruleset off and push straight to `main`, pulling often:
+Earlier this page said that while the project was a prototype it was fine to leave the ruleset off and push straight to `main`. That is no longer true. The `Protect main` ruleset above is active, with an empty bypass list, so `main` accepts no direct pushes from anyone, the owner included. Every change reaches `main` through a pull request that one of us approves on GitHub.
+
+Day to day this means `main` is read-only on your machine. Pull it, branch off it, push the branch, open the pull request:
 
 ```sh
+git switch main
 git pull
+git switch -c <person>/<short-description>
 # work, commit
-git pull
-git push
+git push -u origin <person>/<short-description>
+gh pr create --fill
 ```
 
-With `pull.rebase true` set, each `git pull` replays your commits on top of the other person's, and conflicts show up immediately while they are small.
+The ruleset is repository configuration on GitHub, not a file in this repository. It is not on `main`, not on any branch and not in your clone. Cloning or pulling does not bring it with you, and it applies no matter which branch you have checked out locally.
 
-Switch to the ruleset and PRs the first time a broken `main` costs the other person time. That is the signal, not a date.
+If the ceremony ever needs to go away again, the owner disables the ruleset under **Settings > Rules > Rulesets**, or from the command line:
+
+```sh
+gh api -X PUT repos/TovarisKajuh/grocerai/rulesets/22935862 -f enforcement=disabled
+```

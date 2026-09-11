@@ -16,7 +16,7 @@ Open `index.html` in a browser, or `python -m http.server 8000` and open `http:/
 
 Two developers work on this repository, both through Claude Code. The full workflow is in [docs/collaboration/README.md](docs/collaboration/README.md). The rules that matter inside a session:
 
-- Work on a branch named `<person>/<short-description>`, never directly on `main` unless told the prototyping escape hatch is in effect.
+- Work on a branch named `<person>/<short-description>`, never directly on `main`. `main` is protected on GitHub and accepts no direct pushes; every change lands through a pull request.
 - Commit after each coherent step with a short message. Do not save everything for one commit at the end.
 - Do not reformat, reindent, reorder or tidy code you were not asked to change. Diffs must contain only the requested change.
 - Stay inside the sections of `index.html` the task is about. If the change needs another section, say so before editing it.
