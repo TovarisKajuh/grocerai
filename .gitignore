@@ -1,0 +1,5 @@
+# Claude Code: per-machine settings stay local, .claude/settings.json is shared
+.claude/settings.local.json
+
+# Secrets. Keep .env.example committed and in sync by hand.
+.env
