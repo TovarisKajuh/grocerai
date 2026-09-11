@@ -420,6 +420,7 @@ input[type=range]::-moz-range-thumb{width:20px; height:20px; border-radius:50%; 
       </ul>
     </div>
     <button class="reset" id="reset">Reset prototype</button>
+    <button class="reset" id="copy-list">Copy grocery list</button>
   </aside>
 
   <div class="phone">
@@ -1033,6 +1034,14 @@ function renderList(){
 $('#s-list').addEventListener('click', e=>{
   const m=e.target.closest('[data-mode]'); if(m){ S.listMode=m.dataset.mode; persist(); renderList(); return }
   const c=e.target.closest('[data-check]'); if(c){ const id=c.dataset.check; S.checked[id]=!S.checked[id]; persist(); c.classList.toggle('done', S.checked[id]); const M=model(); const done=M.G.filter(g=>S.checked[g.it.id]).length; $('#s-list .hero h2').textContent = `${M.G.length} items, ${done ? done+' in the basket' : 'nothing bought yet'}` }
+});
+$('#copy-list').addEventListener('click', async e=>{
+  const b=e.currentTarget, M=model(), o=M.O.best;
+  const text=M.G.map(x=>`${x.packs} x ${x.it.pack} ${x.it.name} - ${store(o.assign[x.it.id].store).name}`).join('\n');
+  let ok=true;
+  try{ await navigator.clipboard.writeText(text) }catch(err){ ok=false }
+  b.textContent = ok ? 'Copied' : 'Copy failed';
+  setTimeout(()=>{ b.textContent='Copy grocery list' }, 1400);
 });
 
 /* =====================================================================
