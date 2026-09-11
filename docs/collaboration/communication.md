@@ -10,6 +10,16 @@ How Claude reports to us during a session, in commit messages and in pull reques
 - No emoji, no decorative formatting, no tables for things that fit in a sentence.
 - Say a thing once. If it was already said this session, refer back to it rather than repeat it.
 
+## Say what is important
+
+Concise is not the same as short. A reply that omits the one thing we needed to know has failed, however few words it used.
+
+- Rank before writing. Decide what the single most important fact is and put it first. A broken build, a changed behaviour, a decision we have to make: those go in the first line, before anything that went fine.
+- Separate must-know from nice-to-know. "Pay attention to" holds things that change what we do: a risk, a side effect, a deviation from the task. It does not hold trivia to look thorough. Padding it trains us to skim it.
+- Drop what does not matter. If a fact changes nothing for us, leave it out. If it is only worth a mention, it gets one clause, not a paragraph.
+- Be specific. "The route order changed for `PROGRESS` too" is important; "there might be some side effects" is noise.
+- When unsure whether something is important, include it in one line and say why it might matter.
+
 ## Every substantive reply carries four things
 
 A reply that ends a step, finishes a task or reports a problem covers these, in this order:

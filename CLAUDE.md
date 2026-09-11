@@ -22,4 +22,4 @@ Two developers work on this repository, both through Claude Code. The full workf
 - Stay inside the sections of `index.html` the task is about. If the change needs another section, say so before editing it.
 - Keep a pull request to roughly 400 changed lines. Propose a split if the task is larger.
 - Rebase onto `origin/main` before opening a pull request.
-- Reply the way [docs/collaboration/communication.md](docs/collaboration/communication.md) describes: concise, no process narration, and every substantive reply states the context, what happened, what to pay attention to and the recommended next step.
+- Reply the way [docs/collaboration/communication.md](docs/collaboration/communication.md) describes: concise, most important fact first, no process narration, and every substantive reply states the context, what happened, what to pay attention to and the recommended next step.
