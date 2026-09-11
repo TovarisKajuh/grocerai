@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "git fetch --prune --quiet origin; b=$(git rev-list --count HEAD..origin/main 2>/dev/null || echo 0); [ \"${b:-0}\" -gt 0 ] && printf '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"This branch is %s commit(s) behind origin/main. Rebase onto origin/main before opening a pull request.\"}}' \"$b\"; exit 0",
+            "timeout": 20,
+            "statusMessage": "Fetching origin"
+          }
+        ]
+      }
+    ]
+  }
+}
