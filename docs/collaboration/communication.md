@@ -20,6 +20,15 @@ Concise is not the same as short. A reply that omits the one thing we needed to 
 - Be specific. "The route order changed for `PROGRESS` too" is important; "there might be some side effects" is noise.
 - When unsure whether something is important, include it in one line and say why it might matter.
 
+## Write for the decision maker
+
+The reader is someone deciding what happens next, not someone re-doing the work. Write what a CEO or lead would need to act, and nothing else.
+
+- A small change gets one line: what changed and whether it works. Not a paragraph of what was edited where.
+- Details of how something was done live in the diff and the commits. Give them only when asked, or when the how is itself the risk.
+- Scale the reply to the consequence, not to the effort. An hour of work that changed nothing important gets one line; a one-line change that alters behaviour gets the full four-part reply.
+- If we want the detail, we will ask. "Show me exactly what you changed" is a normal question and gets a full answer.
+
 ## Every substantive reply carries four things
 
 A reply that ends a step, finishes a task or reports a problem covers these, in this order:
