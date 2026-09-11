@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grocerai · Architecture plan · CEO summary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Instrument+Sans:ital,wght@0,400..700;1,400&family=Azeret+Mono:wght@400;500;600;700&display=swap">
+<style>
+/* ---------- tokens (from the prototype) ---------- */
+:root{
+  --ink:#0E1F17; --ink-2:#3B4A43; --ink-3:#6F7D76; --ink-4:#A4AFA9;
+  --paper:#F1F4EE; --card:#FFFFFF; --line:#DCE3DB; --line-2:#EBEFE8;
+  --deep:#0F3D2E; --deep-2:#155037; --leaf:#1F7A4D; --leaf-soft:#DCF0E3; --leaf-ink:#0B5A36;
+  --tag:#FFD23F; --tag-soft:#FFF4CC; --tag-ink:#3A2E00;
+  --sale:#E8412C; --sale-soft:#FCE5E0; --sale-ink:#9A2415;
+  --shell:#0B120E;
+  --font-d:"Bricolage Grotesque", "Instrument Sans", system-ui, sans-serif;
+  --font-b:"Instrument Sans", system-ui, -apple-system, sans-serif;
+  --font-m:"Azeret Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --radius:18px; --radius-s:12px;
+  --shadow:0 1px 2px rgba(14,31,23,.06), 0 8px 24px -12px rgba(14,31,23,.18);
+  --W:1280px; --H:720px; --s:1;
+}
+*{box-sizing:border-box}
+html,body{margin:0; padding:0; height:100%}
+body{font-family:var(--font-b); background:var(--shell); color:var(--ink); -webkit-font-smoothing:antialiased; overflow:hidden}
+h1,h2,h3{margin:0; font-family:var(--font-d); text-wrap:balance; letter-spacing:-.02em}
+p{margin:0}
+ul{margin:0; padding:0; list-style:none}
+b{font-weight:700}
+.mono{font-family:var(--font-m); font-variant-numeric:tabular-nums}
+
+/* ---------- deck ---------- */
+.deck{position:fixed; inset:0 0 44px 0}
+.slide{
+  position:absolute; left:50%; top:50%; width:var(--W); height:var(--H);
+  transform:translate(-50%,-50%) scale(var(--s)); transform-origin:center;
+  background:var(--paper); color:var(--ink); border-radius:0; overflow:hidden;
+  padding:60px 72px 56px; display:none; flex-direction:column;
+  background-image:radial-gradient(900px 420px at 8% -8%, rgba(31,122,77,.10), transparent 60%), radial-gradient(700px 400px at 108% 108%, rgba(255,210,63,.16), transparent 60%);
+}
+.slide.on{display:flex}
+.slide.dark{background:var(--deep); color:#fff; background-image:none}
+.slide.dark .bg{position:absolute; inset:0; pointer-events:none}
+.slide.dark .bg .b1{position:absolute; width:720px; height:720px; border-radius:50%; right:-260px; top:-280px; background:radial-gradient(circle at 30% 30%, rgba(255,210,63,.5), rgba(255,210,63,0) 65%)}
+.slide.dark .bg .b2{position:absolute; width:820px; height:820px; border-radius:50%; left:-380px; bottom:-380px; background:radial-gradient(circle at 60% 40%, rgba(31,122,77,.9), rgba(31,122,77,0) 65%)}
+.slide.dark .bg .grid{position:absolute; inset:0; opacity:.08; background-image:linear-gradient(rgba(255,255,255,.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.7) 1px, transparent 1px); background-size:28px 28px; mask-image:radial-gradient(circle at 50% 40%, #000, transparent 75%)}
+.slide > *{position:relative}
+
+/* ---------- typography ---------- */
+.kicker{font-family:var(--font-m); font-size:12px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--leaf); margin-bottom:10px}
+.dark .kicker{color:var(--tag)}
+h1{font-size:44px; font-weight:800; line-height:1.02}
+.dark h1{font-size:76px; letter-spacing:-.035em; line-height:.98}
+.dark h1 em{font-style:normal; color:var(--tag)}
+.lead{font-size:19px; line-height:1.45; color:var(--ink-2); max-width:62ch; margin-top:14px}
+.dark .lead{color:rgba(255,255,255,.82)}
+.muted{color:var(--ink-3)}
+.small{font-size:13px}
+.body{flex:1; display:flex; flex-direction:column; margin-top:26px; min-height:0}
+
+/* ---------- components ---------- */
+.card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:22px 26px; box-shadow:var(--shadow)}
+.card h3{font-size:19px; font-weight:800; margin-bottom:12px; display:flex; align-items:center; gap:10px}
+.card h3 i{width:10px; height:10px; border-radius:50%; display:inline-block}
+.card.leaf{background:var(--leaf-soft); border-color:transparent; box-shadow:none}
+.card.tag{background:var(--tag-soft); border-color:transparent; box-shadow:none}
+.two{display:grid; grid-template-columns:1fr 1fr; gap:22px}
+.body > .two{flex:1; min-height:0; align-content:center}
+.mid{flex:1; display:flex; flex-direction:column; justify-content:center}
+.list li{position:relative; padding-left:20px; font-size:16px; line-height:1.4; margin:0 0 10px}
+.list li::before{content:""; position:absolute; left:0; top:9px; width:8px; height:8px; border-radius:50%; background:var(--leaf)}
+.list.red li::before{background:var(--sale)}
+.list.plain li::before{background:var(--ink-4)}
+.foot{margin-top:auto; padding-top:16px; font-size:13.5px; color:var(--ink-3)}
+.pill{display:inline-flex; align-items:center; gap:8px; padding:7px 12px; border-radius:999px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); font-size:13px; white-space:nowrap}
+.pill b{font-family:var(--font-m); color:var(--tag); font-weight:600}
+.callout{border-radius:var(--radius); padding:18px 22px}
+.callout .t{font-family:var(--font-d); font-weight:800; font-size:17px; margin-bottom:6px}
+.callout p{font-size:14.5px; line-height:1.45}
+.kpi{display:flex; align-items:center; gap:18px; background:var(--ink); color:#fff; border-radius:var(--radius); padding:16px 24px}
+.kpi .v{font-family:var(--font-d); font-weight:800; font-size:34px; color:var(--tag); letter-spacing:-.03em; white-space:nowrap}
+.kpi .l{font-size:15px; line-height:1.4; opacity:.9}
+
+/* pipeline */
+.pipe{display:flex; align-items:stretch; gap:0; margin-top:8px}
+.pipe .step{flex:1; background:var(--card); border:1px solid var(--line); border-radius:var(--radius-s); padding:16px 12px 14px; text-align:center; box-shadow:var(--shadow); display:flex; flex-direction:column; justify-content:center; min-height:112px}
+.pipe .step.hot{background:var(--tag); border-color:transparent}
+.pipe .step .n{font-family:var(--font-m); font-size:11px; font-weight:600; color:var(--ink-3); letter-spacing:.08em; margin-bottom:6px}
+.pipe .step.hot .n{color:var(--tag-ink)}
+.pipe .step .t{font-family:var(--font-d); font-weight:800; font-size:17px; letter-spacing:-.01em}
+.pipe .step .d{font-size:12.5px; color:var(--ink-3); margin-top:5px; line-height:1.3}
+.pipe .step.hot .d{color:var(--tag-ink)}
+.pipe .arr{width:30px; display:flex; align-items:center; justify-content:center; color:var(--ink-3); flex:none}
+
+/* numbered list */
+.nums{display:flex; flex-direction:column; gap:24px; margin-top:10px}
+.nums li{display:grid; grid-template-columns:48px 1fr; gap:20px; align-items:start}
+.nums .k{width:48px; height:48px; border-radius:50%; background:var(--tag); font-family:var(--font-d); font-weight:800; font-size:20px; display:flex; align-items:center; justify-content:center}
+.nums .t{font-family:var(--font-d); font-weight:800; font-size:22px; letter-spacing:-.01em}
+.nums .d{font-size:16px; color:var(--ink-2); line-height:1.45; margin-top:4px; max-width:88ch}
+
+/* tables */
+table.t{width:100%; border-collapse:separate; border-spacing:0; background:var(--card); border:1px solid var(--line); border-radius:var(--radius-s); overflow:hidden; box-shadow:var(--shadow)}
+table.t th{background:var(--ink); color:#fff; text-align:left; font-size:12px; font-family:var(--font-m); letter-spacing:.08em; text-transform:uppercase; font-weight:600; padding:11px 16px}
+table.t td{padding:14px 16px; font-size:15px; line-height:1.4; border-top:1px solid var(--line-2); vertical-align:top}
+table.t tr:nth-child(even) td{background:#FAFBF8}
+table.t td:first-child{font-weight:700; white-space:nowrap}
+table.t .imp{display:inline-block; font-family:var(--font-m); font-size:11px; font-weight:600; padding:3px 8px; border-radius:999px}
+table.t .imp.h{background:var(--sale-soft); color:var(--sale-ink)}
+table.t .imp.m{background:var(--tag-soft); color:var(--tag-ink)}
+table.t .id{font-family:var(--font-m); font-weight:600; color:var(--leaf-ink)}
+
+/* gantt */
+.gantt{display:grid; grid-template-columns:300px 1fr; row-gap:16px; margin-top:6px; align-items:center}
+.gantt .lab .t{font-family:var(--font-d); font-weight:800; font-size:17px}
+.gantt .lab .d{font-size:13px; color:var(--ink-3); margin-top:2px}
+.gantt .row{display:grid; grid-template-columns:repeat(14, 1fr); height:52px; position:relative}
+.gantt .row::before{content:""; position:absolute; inset:0; background-image:linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size:calc(100% / 14) 100%; opacity:.7}
+.gantt .bar{position:relative; border-radius:10px; display:flex; align-items:center; padding:0 12px; font-size:12.5px; line-height:1.2; color:#fff; background:var(--ink); overflow:hidden}
+.gantt .bar.tag{background:var(--tag); color:var(--ink)}
+.gantt .bar.leaf{background:var(--leaf)}
+.gantt .note{position:relative; display:flex; align-items:center; padding-left:12px; font-size:12.5px; color:var(--ink-3)}
+.gantt .months{display:grid; grid-template-columns:repeat(14, 1fr); grid-column:2; font-family:var(--font-m); font-size:11.5px; color:var(--ink-3); margin-top:-6px}
+.gantt .months span{grid-column:span 1}
+.exits{display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-top:auto}
+.exits .callout{padding:14px 18px}
+.exits .callout .t{font-size:13px; font-family:var(--font-m); font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--leaf-ink); margin-bottom:4px}
+.exits .callout p{font-size:14px; color:var(--ink)}
+
+/* architecture diagram */
+.arch{position:relative; width:1136px; height:420px; margin-top:6px}
+.arch .bx{position:absolute; background:var(--card); border:1px solid var(--line); border-radius:var(--radius-s); padding:16px 18px; box-shadow:var(--shadow)}
+.arch .bx .t{font-family:var(--font-d); font-weight:800; font-size:19px; margin-bottom:6px}
+.arch .bx .d{font-size:13.5px; line-height:1.4; color:var(--ink-2)}
+.arch .bx .d b{color:var(--ink)}
+.arch .bx.tag{background:var(--tag); border-color:transparent}
+.arch .bx.tag .d{color:var(--tag-ink)}
+.arch .bx.soft{background:var(--tag-soft); border-color:transparent; box-shadow:none}
+.arch .bx .badge{position:absolute; top:-11px; left:16px; font-family:var(--font-m); font-size:10.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; background:var(--leaf); color:#fff; padding:3px 8px; border-radius:999px}
+.arch svg{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible}
+.arch svg path{fill:none; stroke:var(--ink); stroke-width:2.2; stroke-linecap:round}
+.arch svg path.soft{stroke:var(--ink-3); stroke-dasharray:4 5}
+.arch svg text{font-family:var(--font-m); font-size:11px; fill:var(--ink-3); font-weight:600}
+
+/* ---------- animation ---------- */
+.a{opacity:0; transform:translateY(14px)}
+.slide.on .a{animation:up .55s cubic-bezier(.2,.7,.2,1) both; animation-delay:calc(var(--i, 0) * 70ms)}
+@keyframes up{to{opacity:1; transform:none}}
+@media (prefers-reduced-motion: reduce){.a{opacity:1; transform:none} .slide.on .a{animation:none}}
+
+/* ---------- hud ---------- */
+.hud{position:fixed; inset:auto 0 0 0; height:44px; display:flex; align-items:center; justify-content:space-between; padding:0 18px; color:#8A968F; font-size:12px; font-family:var(--font-m); pointer-events:none; z-index:5}
+.hud .keys{opacity:.7}
+.hud .keys kbd{display:inline-block; border:1px solid #2A3730; border-radius:5px; padding:1px 6px; margin:0 2px; font-family:inherit; font-size:11px}
+.prog{position:fixed; left:0; top:0; height:3px; background:var(--tag); width:0; transition:width .3s ease; z-index:5}
+.tap{position:fixed; top:0; bottom:44px; width:30%; cursor:pointer; z-index:4}
+.tap.l{left:0} .tap.r{right:0}
+
+/* ---------- overview ---------- */
+.deck.overview{overflow:auto; padding:56px 40px 60px; display:grid; grid-template-columns:repeat(3, 1fr); gap:28px; align-content:start}
+.deck.overview .slide{display:flex; position:relative; left:auto; top:auto; transform:none; zoom:.28; cursor:pointer; outline:6px solid transparent; outline-offset:6px; border-radius:24px}
+.deck.overview .slide.on{outline-color:var(--tag)}
+.deck.overview .slide .a{opacity:1; transform:none; animation:none}
+.deck.overview ~ .tap{display:none}
+
+/* ---------- print ---------- */
+@media print{
+  html,body{overflow:visible; background:#fff; height:auto}
+  .deck{position:static}
+  .slide{display:flex !important; position:relative; left:auto; top:auto; transform:none; page-break-after:always; break-after:page; margin:0; box-shadow:none}
+  .slide .a{opacity:1 !important; transform:none !important; animation:none !important}
+  .hud,.prog,.tap{display:none}
+  @page{size:1280px 720px; margin:0}
+}
+</style>
+</head>
+<body>
+<div class="prog" id="prog"></div>
+<div class="deck" id="deck">
+
+<!-- 1 · Title -->
+<section class="slide dark" id="s1">
+  <div class="bg"><div class="grid"></div><div class="b1"></div><div class="b2"></div></div>
+  <div style="display:flex; align-items:center; gap:10px; font-family:var(--font-d); font-weight:800; font-size:24px; letter-spacing:-.02em" class="a"><i style="width:12px;height:12px;border-radius:50%;background:var(--tag);display:inline-block"></i>Grocerai</div>
+  <div style="margin-top:auto">
+    <div class="kicker a">Architecture plan · summary for the CEO</div>
+    <h1 class="a">From prototype<br>to <em>product.</em></h1>
+    <p class="lead a" style="max-width:52ch">What we build, in what order, and what we need decided. Ten slides; the full plan is in <span class="mono">docs/architecture</span>.</p>
+  </div>
+  <div style="margin-top:34px; display:flex; gap:8px; flex-wrap:wrap" class="a">
+    <span class="pill">Expo · React Native</span><span class="pill">One TypeScript engine <b>phone + server</b></span><span class="pill">PostgreSQL <b>EU</b></span><span class="pill">Python price pipeline</span><span class="pill">Offline in the aisle</span><span class="pill">Infra <b>&lt; 100 €/mo</b></span><span class="pill">Beta in <b>4 months</b></span>
+  </div>
+  <p class="small a" style="margin-top:22px; opacity:.6">Draft v0.1 · 11 September 2026 · branch Aljaz/app-architecture</p>
+</section>
+
+<!-- 2 · What we are building -->
+<section class="slide" id="s2">
+  <div class="kicker a">What we are building</div>
+  <h1 class="a">Eat well. Pay less. Never plan again.</h1>
+  <p class="lead a">The user answers five questions once. Every Thursday they get a week of meals built around their goal, a grocery list priced at every store nearby, the cheapest trip, and the euro saving against the store they already shop at.</p>
+  <div class="body">
+    <div class="mid">
+    <div class="pipe a">
+      <div class="step"><div class="n">01</div><div class="t">Goal</div><div class="d">5-step wizard</div></div><div class="arr">→</div>
+      <div class="step"><div class="n">02</div><div class="t">Meal plan</div><div class="d">kcal target, diet, allergies, cook time</div></div><div class="arr">→</div>
+      <div class="step"><div class="n">03</div><div class="t">Grocery list</div><div class="d">scaled to the household</div></div><div class="arr">→</div>
+      <div class="step hot"><div class="n">04</div><div class="t">Prices</div><div class="d">every item at every store</div></div><div class="arr">→</div>
+      <div class="step hot"><div class="n">05</div><div class="t">Cheapest trip</div><div class="d">basket + travel, ≤ N stores</div></div><div class="arr">→</div>
+      <div class="step"><div class="n">06</div><div class="t">Shop</div><div class="d">offline aisle mode</div></div><div class="arr">→</div>
+      <div class="step"><div class="n">07</div><div class="t">Progress</div><div class="d">weight, spend, streak</div></div>
+    </div>
+    <p class="small muted a" style="margin-top:12px">Highlighted: the part nobody else does. Meal planners stop at the list; price apps do not know what you will eat.</p>
+    </div>
+    <div class="two a" style="flex:none">
+      <div class="callout" style="background:var(--leaf-soft)"><div class="t" style="color:var(--leaf-ink)">The number the product lives on</div><p>“−13,40 € this week vs. Mercator only.” Always against the user's own usual store, so it means something to them.</p></div>
+      <div class="callout" style="background:var(--tag-soft)"><div class="t">The rhythm</div><p>Weekly, keyed to supermarket leaflets. Thursday: new prices, new plan, one push notification.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 · Where we are -->
+<section class="slide" id="s3">
+  <div class="kicker a">Where we are today</div>
+  <h1 class="a">The prototype is the spec.</h1>
+  <p class="lead a">One HTML file, every screen clickable, numbers computed live. Nothing gets thrown away: its logic becomes the engine, its sample data becomes our test fixture.</p>
+  <div class="body">
+    <div class="two">
+      <div class="card a"><h3><i style="background:var(--leaf)"></i>Already real</h3>
+        <ul class="list">
+          <li>Calorie targets (Mifflin-St Jeor), goal and activity adjustment</li>
+          <li>Plan generation from diet, allergies, dislikes, cook time</li>
+          <li>Grocery quantities scaled to the household</li>
+          <li>Multi-store optimiser: basket + travel cost, store limit</li>
+          <li>Shopping route, in-aisle mode, swaps re-price everything</li>
+          <li>Full UI: wizard, plan, list, deals, route, progress</li>
+        </ul></div>
+      <div class="card a"><h3><i style="background:var(--sale)"></i>Mocked, and therefore the work</h3>
+        <ul class="list red">
+          <li>Store prices and weekly discounts (sample data, 5 Ljubljana chains)</li>
+          <li>The map and distances</li>
+          <li>Recipe corpus: 27 meals, needs 100+</li>
+          <li>Weight history, spend history, streak</li>
+          <li>Accounts, sync, notifications</li>
+          <li>Anything that survives closing the browser tab</li>
+        </ul></div>
+    </div>
+    <p class="foot a">Two developers, both working through Claude Code. The architecture is chosen for that team, not for a hypothetical one.</p>
+  </div>
+</section>
+
+<!-- 4 · Architecture -->
+<section class="slide" id="s4">
+  <div class="kicker a">How it fits together</div>
+  <h1 class="a">The architecture in one picture.</h1>
+  <div class="body">
+    <div class="arch a">
+      <div class="bx" style="left:0; top:40px; width:300px; height:250px"><span class="badge">Phase 1 ships this alone</span><div class="t">Mobile app</div><div class="d"><b>Expo / React Native</b><br>iOS + Android, web demo<br><br>Works fully offline and without an account. Runs the engine on the phone for instant swaps.</div></div>
+      <div class="bx tag" style="left:390px; top:40px; width:380px; height:96px"><div class="t">Shared engine</div><div class="d"><b>Pure TypeScript</b> · runs on the phone and on the server · nutrition, planner, optimiser, router</div></div>
+      <div class="bx" style="left:390px; top:176px; width:380px; height:224px"><div class="t">API + database · EU</div><div class="d"><b>Node / TypeScript</b> modular monolith<br><b>PostgreSQL</b> on Supabase, Frankfurt<br>Auth, storage, weekly jobs, push<br><br>Profiles, week snapshots, trips, progress</div></div>
+      <div class="bx" style="left:860px; top:40px; width:276px; height:250px"><div class="t">Price ingestion</div><div class="d"><b>Python</b> workers<br>One adapter per chain<br>LLM-assisted product matching<br>Human review queue<br><br>Publishes a weekly catalog</div></div>
+      <div class="bx soft" style="left:860px; top:330px; width:276px; height:70px"><div class="t" style="font-size:15px; margin-bottom:2px">Retailer sites and leaflets</div><div class="d" style="font-size:12.5px">Lidl · Hofer · Spar · Mercator · Tuš</div></div>
+      <svg viewBox="0 0 1136 420">
+        <defs><marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--ink)" stroke="none"/></marker>
+        <marker id="ms" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--ink-3)" stroke="none"/></marker></defs>
+        <path d="M300 250 H388" marker-end="url(#m)"/><text x="344" y="242" text-anchor="middle">REST /v1</text>
+        <path d="M388 300 H302" marker-end="url(#m)"/><text x="344" y="318" text-anchor="middle">push · Thu</text>
+        <path class="soft" d="M300 88 H388" marker-end="url(#ms)"/><text x="344" y="80" text-anchor="middle">runs</text>
+        <path class="soft" d="M580 176 V138" marker-end="url(#ms)"/><text x="600" y="162">runs</text>
+        <path d="M860 250 H772" marker-end="url(#m)"/><text x="816" y="242" text-anchor="middle">catalog</text>
+        <path d="M998 330 V292" marker-end="url(#m)"/><text x="1010" y="316">weekly</text>
+      </svg>
+    </div>
+    <p class="foot a"><b style="color:var(--ink)">Principles.</b> Everything downstream of the profile is computed, never stored by hand · useful before the backend exists · one language, one engine · modular monolith for a two-person team · EU only, health data treated as such · offline in the aisle · boring managed infrastructure.</p>
+  </div>
+</section>
+
+<!-- 5 · Five choices -->
+<section class="slide" id="s5">
+  <div class="kicker a">Key decisions in the plan</div>
+  <h1 class="a">Five choices that shape everything.</h1>
+  <div class="body">
+    <ul class="nums">
+      <li class="a"><span class="k">1</span><div><div class="t">Expo mobile app, TypeScript</div><div class="d">Phone-first product with app-store presence. One codebase for iOS, Android and the web demo. Same language as the backend.</div></div></li>
+      <li class="a"><span class="k">2</span><div><div class="t">One engine, runs on the phone and the server</div><div class="d">The prototype's planner and optimiser become a shared package. Instant interactions on-device; a server run for the Thursday push with a real number.</div></div></li>
+      <li class="a"><span class="k">3</span><div><div class="t">Modular monolith on managed EU infrastructure</div><div class="d">Supabase (Postgres, auth, storage) + Fly.io. No Kubernetes, no microservices. Under 100 € a month through beta.</div></div></li>
+      <li class="a"><span class="k">4</span><div><div class="t">Python price pipeline with a human in the loop</div><div class="d">Scrape sites and leaflets weekly, match the ~40 recipe products per chain with embeddings + LLM, review only the uncertain ones.</div></div></li>
+      <li class="a"><span class="k">5</span><div><div class="t">Local-first: useful before the backend exists</div><div class="d">Phase 1 is the whole prototype as a real app on sample prices, no account. We validate the loop while the hard data work runs.</div></div></li>
+    </ul>
+    <p class="foot a">Each of these is a row in <span class="mono">decisions.xlsx</span> with the alternatives we weighed. None is irreversible before phase 2; the first two are the expensive ones to change after it.</p>
+  </div>
+</section>
+
+<!-- 6 · The hard part -->
+<section class="slide" id="s6">
+  <div class="kicker a">The moat and the risk</div>
+  <h1 class="a">The hard part is price data.</h1>
+  <p class="lead a">Every number in the product depends on knowing what roughly forty products cost at five chains, every week. Nobody sells us that feed today.</p>
+  <div class="body">
+    <div class="two">
+      <div class="card a"><h3><i style="background:var(--sale)"></i>Why it is hard</h3>
+        <ul class="list red">
+          <li>Lidl and Hofer publish leaflets, not price lists</li>
+          <li>Every chain names and packs the same product differently</li>
+          <li>Sites change; scrapers break silently</li>
+          <li>Terms of service differ per chain; legal exposure is real</li>
+          <li>A wrong match means a wrong price and a wrong saving</li>
+        </ul></div>
+      <div class="card a"><h3><i style="background:var(--leaf)"></i>What we do about it</h3>
+        <ul class="list">
+          <li>Scope to the recipe products, not whole catalogs</li>
+          <li>One isolated adapter per chain; raw snapshots kept, so a parser bug never means a re-fetch</li>
+          <li>LLM-assisted matching with a review queue; the matching memory shrinks the work each week</li>
+          <li>Stale fallback: a broken chain carries last week's prices, the week still builds</li>
+          <li>Legal review per chain before phase 2; retailer partnerships pursued in parallel</li>
+        </ul></div>
+    </div>
+    <div class="kpi a" style="margin-top:22px"><div class="v">≥ 90 %</div><div class="l"><b>The KPI the pipeline runs on.</b> Coverage: recipe products with a live price at each enabled chain, every week. Below it, we alert; the app shows “prices from last week”.</div></div>
+  </div>
+</section>
+
+<!-- 7 · Roadmap -->
+<section class="slide" id="s7">
+  <div class="kicker a">Roadmap</div>
+  <h1 class="a">Four months to a Ljubljana beta.</h1>
+  <div class="body">
+    <div class="gantt">
+      <div class="lab a"><div class="t">0 · Decide and scaffold</div><div class="d">1 week · 15–19 Sep</div></div>
+      <div class="row a"><div class="bar" style="grid-column:1 / span 1"></div><div class="note" style="grid-column:2 / span 6">Decisions D1–D11 · monorepo · engine ported with a parity test</div></div>
+      <div class="lab a"><div class="t">1 · Local-first app</div><div class="d">4–5 weeks · 22 Sep – 24 Oct</div></div>
+      <div class="row a"><div class="bar tag" style="grid-column:2 / span 4">Prototype as a real app on sample prices · internal TestFlight</div></div>
+      <div class="lab a"><div class="t">2 · Real prices</div><div class="d">5–6 weeks · 29 Sep – 7 Nov</div></div>
+      <div class="row a"><div class="bar tag" style="grid-column:3 / span 6">Ingestion for 5 chains · matching with review · live catalog in the app</div></div>
+      <div class="lab a"><div class="t">3 · Accounts and the weekly rhythm</div><div class="d">3–4 weeks · 10 Nov – 5 Dec</div></div>
+      <div class="row a"><div class="bar" style="grid-column:9 / span 4">Sign-in · sync · Thursday push · export and delete</div></div>
+      <div class="lab a"><div class="t">4 · Ljubljana beta</div><div class="d">ongoing · from 8 Dec</div></div>
+      <div class="row a"><div class="bar leaf" style="grid-column:13 / span 2">Beta · 50–200 users</div></div>
+      <div></div>
+      <div class="months a"><span>Sep</span><span></span><span></span><span>Oct</span><span></span><span></span><span></span><span>Nov</span><span></span><span></span><span></span><span></span><span>Dec</span><span></span></div>
+    </div>
+    <div class="exits a">
+      <div class="callout" style="background:var(--leaf-soft)"><div class="t">Phase 1 exit</div><p>Both developers use it for a real weekly shop.</p></div>
+      <div class="callout" style="background:var(--leaf-soft)"><div class="t">Phase 2 exit</div><p>Price coverage ≥ 90 % for three consecutive weeks.</p></div>
+      <div class="callout" style="background:var(--leaf-soft)"><div class="t">Phase 3 exit</div><p>A signed-in user gets the Thursday push with a real saving.</p></div>
+    </div>
+    <p class="foot a">Phases 1 and 2 overlap: different directories, different developer. Phase 1 needs no server, so the product loop is validated while the hard data work runs.</p>
+  </div>
+</section>
+
+<!-- 8 · Risks -->
+<section class="slide" id="s8">
+  <div class="kicker a">Risks</div>
+  <h1 class="a">Risks, and how the plan absorbs them.</h1>
+  <div class="body">
+    <table class="t a">
+      <tr><th style="width:31%">Risk</th><th style="width:9%">Impact</th><th>Mitigation</th></tr>
+      <tr><td>Price data access: legal terms, site changes</td><td><span class="imp h">High</span></td><td>Legal review per chain; isolated adapters with raw snapshots; stale fallback; partnerships in parallel</td></tr>
+      <tr><td>Product matching quality</td><td><span class="imp h">High</span></td><td>Scope to ~40 recipe products; review queue for low confidence; coverage and price-move alerts</td></tr>
+      <tr><td>Recipe corpus too small, weeks repeat</td><td><span class="imp m">Medium</span></td><td>Variety scoring in the planner; corpus to 100+ before beta with dietitian review</td></tr>
+      <tr><td>Health data compliance (GDPR Art. 9)</td><td><span class="imp h">High</span></td><td>Explicit consent, EU-only hosting, skippable body metrics, export and delete before the first external user</td></tr>
+      <tr><td>Savings claims not credible</td><td><span class="imp h">High</span></td><td>Always vs. the user's own usual store; receipts collected in beta; savings shown compared with recorded spend</td></tr>
+      <tr><td>Two-developer bandwidth</td><td><span class="imp m">Medium</span></td><td>Phase 1 ships value with no backend; managed infrastructure; module ownership keeps the two streams from blocking</td></tr>
+    </table>
+    <p class="foot a">The first two are the ones to watch: they are the moat, and they are the only risks the team cannot engineer away alone. The legal review and the retailer conversations need to start in phase 1, not phase 2.</p>
+  </div>
+</section>
+
+<!-- 9 · Decisions -->
+<section class="slide" id="s9">
+  <div class="kicker a">Your call</div>
+  <h1 class="a">Decisions we need from you.</h1>
+  <div class="body">
+    <table class="t a">
+      <tr><th style="width:6%">#</th><th style="width:28%">Decision</th><th>Our recommendation</th></tr>
+      <tr><td class="id">D1</td><td>What “AI” means in Grocerai</td><td>Hybrid: an LLM drafts recipes offline into the corpus; a deterministic engine plans. Predictable, cheap, testable.</td></tr>
+      <tr><td class="id">D2</td><td>Headline value: savings or health</td><td>Savings-led. Euros are measurable and shareable; health is the reason people stay.</td></tr>
+      <tr><td class="id">D3</td><td>Where prices come from</td><td>Scrape sites and leaflets now, with legal review; pursue retailer partnerships in parallel.</td></tr>
+      <tr><td class="id">D18</td><td>Body metrics as health data</td><td>Treat as GDPR special category from day one: consent, EU-only, skippable. Retrofitting is expensive.</td></tr>
+      <tr><td class="id">D21</td><td>Launch geography</td><td>Ljubljana beta. Store coverage and price coverage stay manageable.</td></tr>
+      <tr><td class="id">D23</td><td>Monetisation</td><td>Defer until beta, instrument savings now. Per-user cost is near zero, so every model stays open.</td></tr>
+    </table>
+    <p class="foot a">17 further technical decisions (platform, database, hosting, offline, matching, …) are in <span class="mono">decisions.xlsx</span>, each with a recommended option and a one-line why. Eleven are needed in the first week; the rest can wait for the phase that uses them.</p>
+  </div>
+</section>
+
+<!-- 10 · Cost and next steps -->
+<section class="slide" id="s10">
+  <div class="kicker a">Cost and next steps</div>
+  <h1 class="a">What it costs, and what happens next.</h1>
+  <div class="body">
+    <div class="two">
+      <div class="card a"><h3><i style="background:var(--leaf)"></i>Cost through beta</h3>
+        <p style="font-weight:700; font-size:15.5px">Infrastructure: under 100 € a month</p>
+        <p class="small muted" style="margin:3px 0 14px; line-height:1.45">Supabase Pro, two small Fly.io machines, Sentry and PostHog free tiers, a few euros a week of LLM matching.</p>
+        <p style="font-weight:700; font-size:15.5px">One-off and external</p>
+        <p class="small muted" style="margin:3px 0 14px; line-height:1.45">Apple and Google developer accounts. Legal review of retailer terms before phase 2. Dietitian review of the recipe corpus before beta.</p>
+        <p style="font-weight:700; font-size:15.5px">People</p>
+        <p class="small muted" style="margin:3px 0 0; line-height:1.45">Two developers, both through Claude Code, split app + engine vs. API + data. No hires assumed before beta.</p>
+      </div>
+      <div class="card a"><h3><i style="background:var(--tag)"></i>Next two weeks</h3>
+        <ol style="margin:0; padding-left:22px; font-size:15.5px; line-height:1.5">
+          <li>Resolve decisions D1–D11 in one sitting; the sheet is ready</li>
+          <li>Scaffold the monorepo and CI</li>
+          <li>Port the engine with a parity test against the prototype</li>
+          <li>Start the Expo app: wizard and plan screens</li>
+          <li>Begin legal review of the five chains' terms</li>
+        </ol>
+        <div class="callout" style="background:var(--tag-soft); margin-top:16px; padding:14px 18px"><div class="t" style="font-size:15px">What you will see at the end of phase 1</div><p class="small">The prototype on your phone, installable, working offline, on sample prices. Then the prices become real.</p></div>
+      </div>
+    </div>
+    <p class="foot a">Full plan: <span class="mono">docs/architecture/README.md · frontend.md · backend.md · roadmap.md</span> &nbsp;·&nbsp; decisions: <span class="mono">decisions.xlsx</span></p>
+  </div>
+</section>
+
+</div>
+<div class="tap l" id="tap-l" aria-hidden="true"></div>
+<div class="tap r" id="tap-r" aria-hidden="true"></div>
+<div class="hud"><span>Grocerai · Architecture plan · draft v0.1</span><span class="keys"><kbd>←</kbd><kbd>→</kbd> navigate · <kbd>O</kbd> overview · <kbd>P</kbd> print / PDF</span><span id="count">1 / 10</span></div>
+
+<script>
+(function(){
+  const deck = document.getElementById('deck');
+  const slides = Array.from(deck.querySelectorAll('.slide'));
+  const prog = document.getElementById('prog'), count = document.getElementById('count');
+  const N = slides.length;
+  let cur = -1;
+
+  function fit(){
+    const s = Math.min(innerWidth / 1280, (innerHeight - 44) / 720);
+    document.documentElement.style.setProperty('--s', s.toFixed(4));
+  }
+  function show(i, push){
+    i = Math.max(0, Math.min(N - 1, i));
+    if(i === cur) return;
+    cur = i;
+    slides.forEach((s, k) => {
+      s.classList.toggle('on', k === i);
+      if(k === i) s.querySelectorAll('.a').forEach((el, j) => el.style.setProperty('--i', j));
+    });
+    prog.style.width = ((i + 1) / N * 100) + '%';
+    count.textContent = (i + 1) + ' / ' + N;
+    if(push !== false) history.replaceState(null, '', '#' + (i + 1));
+  }
+  function fromHash(){ const n = parseInt(location.hash.slice(1), 10); show(isNaN(n) ? 0 : n - 1, false) }
+  function overview(on){
+    const want = on === undefined ? !deck.classList.contains('overview') : on;
+    deck.classList.toggle('overview', want);
+    if(want){ slides.forEach(s => s.style.display = 'flex'); slides[cur].scrollIntoView({block:'center'}) }
+    else slides.forEach(s => s.style.display = '');
+  }
+
+  addEventListener('keydown', e => {
+    if(e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key;
+    if(k === 'ArrowRight' || k === 'ArrowDown' || k === ' ' || k === 'PageDown' || k === 'Enter'){ e.preventDefault(); overview(false); show(cur + 1) }
+    else if(k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'Backspace'){ e.preventDefault(); overview(false); show(cur - 1) }
+    else if(k === 'Home'){ overview(false); show(0) }
+    else if(k === 'End'){ overview(false); show(N - 1) }
+    else if(k === 'o' || k === 'O' || k === 'Escape'){ overview(k === 'Escape' ? false : undefined) }
+    else if(k === 'p' || k === 'P'){ print() }
+    else if(/^[1-9]$/.test(k)){ overview(false); show(parseInt(k, 10) - 1) }
+    else if(k === '0'){ overview(false); show(9) }
+  });
+  document.getElementById('tap-l').addEventListener('click', () => show(cur - 1));
+  document.getElementById('tap-r').addEventListener('click', () => show(cur + 1));
+  deck.addEventListener('click', e => {
+    if(!deck.classList.contains('overview')) return;
+    const s = e.target.closest('.slide'); if(!s) return;
+    overview(false); show(slides.indexOf(s));
+  });
+  let tx = null;
+  addEventListener('touchstart', e => { tx = e.touches[0].clientX }, {passive:true});
+  addEventListener('touchend', e => { if(tx === null) return; const dx = e.changedTouches[0].clientX - tx; tx = null; if(Math.abs(dx) > 50) show(cur + (dx < 0 ? 1 : -1)) });
+  addEventListener('resize', fit);
+  addEventListener('hashchange', fromHash);
+  fit(); fromHash();
+})();
+</script>
+</body>
+</html>

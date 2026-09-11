@@ -2,7 +2,7 @@
 
 Draft v0.1, 11 September 2026. This is the high-level plan for turning the prototype in `index.html` into a product. It is written before the product decisions are made; wherever the plan depends on one, it is marked `[D#]` and the decision, the options and the recommended choice are in [decisions.xlsx](decisions.xlsx). The plan assumes the recommended options. If a decision goes the other way, the affected section is the only thing that changes.
 
-The CEO summary is in [ceo-summary.pptx](ceo-summary.pptx).
+The CEO summary is [ceo-summary.html](ceo-summary.html): open it in a browser, arrow keys to navigate, `P` to print to PDF.
 
 ## Pages
 
