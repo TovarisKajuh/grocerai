@@ -20,4 +20,5 @@ Two developers, one GitHub repository, both working through Claude Code. These p
 - [Setup](setup.md): one-time clone, git config and branch protection.
 - [Git workflow](git-workflow.md): branching, pull requests, rebasing and merge rules.
 - [Claude Code](claude-code.md): conventions for code that an agent wrote.
+- [Communication](communication.md): how Claude reports to us in replies, commits and pull requests.
 - [Pitfalls](pitfalls.md): known conflict sources and how to avoid them.
